@@ -1,24 +1,30 @@
 from clause import *
 from function import *
+from powerset import *
 from hassediagram import *
 
-c1 = Clause('10111')
-print("c1:",c1)
-c2 = Clause('10011')
-print("c2:",c2)
+fS1 = Function(4, {Clause('1110'), Clause('1011'), Clause('0111')})
+fS2 = Function(4, {Clause('1110'), Clause('0011')})
+f=fS2
+print("f:",f , '| consistent:', f.is_consistent())
 
-f = Function(5, {c1})
-print("f:",f)
-print("i?", f.independent_clauses())
-print("c?", f.is_consistent())
-f.add_clause(c2)
-print("f:",f)
-print("c?", f.is_consistent())
+p = PowerSet(4)
+# print("powerset:",p)
+print("f.independent_clauses", p.get_independent(f.clauses))
+print("f.max_independent_clauses", p.get_maximal(p.get_independent(f.clauses)))
 
-print("c1.subsets:", c1.get_subsets())   
+hd = HasseDiagram(4)
+print(hd.get_f_parents(f))
 
-print("c2.supersets:", c2.get_supersets())
+# print("c?", f.is_consistent())
+# f.add_clause(c2)
+# print("f:",f)
+# print("c?", f.is_consistent())
 
-hd = HasseDiagram(3)
-fi = hd.get_infimum()
-print("fi:",fi)
+# print("c1.subsets:", c1.get_subsets())   
+
+# print("c2.supersets:", c2.get_supersets())
+
+# hd = HasseDiagram(3)
+# fi = hd.get_infimum()
+# print("fi:",fi)

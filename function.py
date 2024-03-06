@@ -12,6 +12,13 @@ class Function:
         self.clauses = clauses
         self.update_consistency()
 
+    def clone_add_rm(self, cAdd: Set['Clause'], cRm: Set['Clause']) -> 'Function':
+        f = Function(self.nvars, self.clauses.copy())
+        for c in cRm: f.clauses.remove(c)
+        for c in cAdd: f.clauses.add(c)
+        f.update_consistency()
+        return f
+    
     def get_size(self) -> int:
         """ Returns the number of variables of the function. """
         return self.nvars
@@ -39,30 +46,21 @@ class Function:
         for c in self.clauses:
             bcover |= c.get_signature()
         return bcover.all()
+    
+    def get_missing_lits(self) -> Clause:
+        bcover = bitarray('0'*self.nvars)
+        for c in self.clauses:
+            bcover |= c.get_signature()
+        bcover.invert()
+        return Clause(bcover.to01())
 
     def __eq__(self, other: 'Function') -> bool:
         return isinstance(other, Function) and \
                 self.nvars == other.nvars and \
                 self.clauses == other.clauses
 
-    def add_clause(self, c: 'Clause') -> None:
-        self.clauses.add(c)
-        self.update_consistency()
-
     def __hash__(self) -> int:
-        return hash(self.clauses)
-
-    def clone_add(self, c: 'Clause') -> 'Function':
-        f = Function(self.nvars, self.clauses.copy())
-        f.clauses.add(c)
-        f.update_consistency()
-        return f
-
-    def clone_remove(self, c: 'Clause') -> 'Function':
-        f = Function(self.nvars, self.clauses.copy())
-        f.clauses.remove(c)
-        f.update_consistency()
-        return f
+        return hash(tuple(sorted([c.__hash__() for c in self.clauses])))
 
     def __str__(self) -> str:
         return "{" + ",".join(str(c) for c in self.clauses) + "}"

@@ -60,8 +60,8 @@ class PowerSet:
         return s_seen
 
     def get_independent(self, clauses: Set['Clause']) -> Set['Clause']:
-        if not clauses:
-            return { Clause('1'*self.nvars) }
+        if not clauses: # If the set is empty
+            return { Clause('1'*self.nvars) } # return the maximal clause
         dep_set = set()
         for c in clauses:
             dep_set.update(self.get_dominated_recursively(c, dep_set))
@@ -85,14 +85,10 @@ class PowerSet:
     def get_maximal(self, s_clauses: Set['Clause']) -> Set['Clause']:
         l_clauses = list(s_clauses)
         s_maximal = set()
-        for i in range(len(l_clauses)):
-            dominated = False
-            for j in range(len(l_clauses)):
-                if i != j and l_clauses[i].dominated_or_equal_to(l_clauses[j]):
-                    dominated = True
-                    break
-            if not dominated:
-                s_maximal.add(l_clauses[i])
+        for i in range(len(s_clauses)):
+            if any([i != j and l_clauses[j].ge(l_clauses[i]) for j in range(len(s_clauses))]):
+                continue
+            s_maximal.add(l_clauses[i])
         return s_maximal
 
     def __str__(self) -> str:

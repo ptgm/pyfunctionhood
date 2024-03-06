@@ -17,6 +17,9 @@ class Clause:
     def get_order(self) -> int:
         return self.signature.count()
 
+    def has_literal(self, c: 'Clause') -> bool:
+        return any(self.signature[i] and not c.signature[i] for i in range(self.cardinality))
+    
     def __hash__(self) -> int:
         """ Hash function for Clause using the bit string. """
         return hash(self.signature.to01())

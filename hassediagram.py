@@ -38,26 +38,36 @@ class HasseDiagram:
         fparents = set()
         cMaxIndpt = self.powerset.get_maximal(self.powerset.get_independent(f.clauses))
 
+        # Add all parents of the 1st form
         for c in cMaxIndpt:
-            fparents.add(f.clone_add(c)) # Parents of 1st Form
+            fp = f.clone_add_rm({c}, set())
+            print('fp:',fp, 'R1')
+            fparents.add(fp)
         
-        cMaxDom = self.powerset.get_dominated_directly(f.clauses)
-        for s in f.clauses:
-            sDom = self.powerset.get_dominated_directly({s})
-            for sp in sDom:
-                if sp in cMaxDom: # TODO isIncludedIn(sp, cMaxIndpt)
-                    sDom.remove(sp)
-            sVisited = set()
-            for sp in sDom:
-                sVisited.add(sp)
-                fp = (f.clone_remove(s)).add_clause(sp)
-                fp.update_consistency()
-                if fp.is_cover():
-                    fparents.add(fp) # Parents of 2nd Form
-                elif len(fp.clauses) == len(f.clauses):
-                    
-                    
+        # Get maximal dominated clauses
+        cMaxDom = [c for c in self.powerset.get_dominated_directly(f.clauses)\
+                   if not any([c.le(sp) for sp in cMaxIndpt])]
+        # Exclude maximal dominated, dominated by other maximal dominated
+        cMaxDom = [c for c in cMaxDom if not any([c.le(sp) for sp in cMaxDom if sp != c])]
+        print('cMaxDom:',cMaxDom)
 
-
-
+        # Add all parents of the 2nd and 3rd form
+        for sp in cMaxDom:
+            cRm = [c for c in f.clauses if sp.lt(c)]
+            fp = f.clone_add_rm({sp}, cRm)
+            if fp.is_consistent(): # If it's a cover: 2nd form
+                print('fp:',fp, 'R2')
+                fparents.add(fp)
+            elif len(fp.clauses) == len(f.clauses):
+                cMissingLits = fp.get_missing_lits()
+                print('sp:', sp, '  cMissingLits:',cMissingLits)
+                for spp in cMaxDom:
+                    if sp != spp and spp.has_literal(cMissingLits):
+                        fpp = fp.clone_add_rm({spp}, set())
+                        if fpp.is_consistent(): # If it's a cover: 3rd form
+                            # Though pair (sp,spp) may appear again as (spp,sp)
+                            # it's not a problem because fparents is a set
+                            print('fp:',fpp, 'R3')
+                            fparents.add(fpp)
         return fparents
+    
