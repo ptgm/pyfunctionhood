@@ -19,6 +19,10 @@ class Function:
         f.update_consistency()
         return f
     
+    def add_clause(self, c: 'Clause') -> None:
+        self.clauses.add(c)
+        self.update_consistency()
+    
     def get_size(self) -> int:
         """ Returns the number of variables of the function. """
         return self.nvars
@@ -46,13 +50,20 @@ class Function:
         for c in self.clauses:
             bcover |= c.get_signature()
         return bcover.all()
-    
-    def get_missing_lits(self) -> Clause:
+
+    def get_missing_lits(self) -> Clause: # TODO: call clause method
         bcover = bitarray('0'*self.nvars)
         for c in self.clauses:
             bcover |= c.get_signature()
         bcover.invert()
         return Clause(bcover.to01())
+    
+    def getAbsorbed(self, c: Clause) -> Set[Clause]:
+        absorbed = set()
+        for s in self.clauses:
+            if s != c and s.le(c):
+                absorbed.add(s)
+        return absorbed
 
     def __eq__(self, other: 'Function') -> bool:
         return isinstance(other, Function) and \

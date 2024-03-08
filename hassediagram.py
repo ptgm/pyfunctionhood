@@ -53,7 +53,7 @@ class HasseDiagram:
 
         # Add all parents of the 2nd and 3rd form
         for sp in cMaxDom:
-            cRm = [c for c in f.clauses if sp.lt(c)]
+            cRm = set([c for c in f.clauses if sp.lt(c)])
             fp = f.clone_add_rm({sp}, cRm)
             if fp.is_consistent(): # If it's a cover: 2nd form
                 print('fp:',fp, 'R2')
@@ -62,7 +62,7 @@ class HasseDiagram:
                 cMissingLits = fp.get_missing_lits()
                 print('sp:', sp, '  cMissingLits:',cMissingLits)
                 for spp in cMaxDom:
-                    if sp != spp and spp.has_literal(cMissingLits):
+                    if sp != spp and spp.has_some_literal(cMissingLits):
                         fpp = fp.clone_add_rm({spp}, set())
                         if fpp.is_consistent(): # If it's a cover: 3rd form
                             # Though pair (sp,spp) may appear again as (spp,sp)
@@ -71,3 +71,34 @@ class HasseDiagram:
                             fparents.add(fpp)
         return fparents
     
+    def get_f_children(self, f: 'Function') -> Set['Function']:
+        """ Returns the set of immediate children of f. """
+        fchildren, cmergeable = set(), set()
+        
+        # Add all children of the 1st form
+        for s in f.clauses:
+            fc = f.clone_add_rm(set(), {s})
+            print('fcand: f \\',s, ' =',fc)
+            for l in s.missing_literals():
+                sl = s.clone_add(l)
+                if len(fc.getAbsorbed(sl)) == 0:
+                    fc.add_clause(sl)
+            if fc.is_consistent(): # If it's a cover
+                print('fc:',fc, 'R1or2')
+                fchildren.add(fc)
+            else:
+                cmergeable.add(s)
+        #print('cmergeable:',cmergeable)
+        # separar por bins de tamanhos
+        # depois fazer n C 2
+        for c in cmergeable:
+            for l in c.missing_literals():
+                cl = c.clone_add(l)
+                #print(' c:',c, '  l:',l+1, '  cl:',cl)
+                sAbsorbed = f.getAbsorbed(cl)
+                #print('   abs:',sAbsorbed)
+                if len(sAbsorbed) == 2:
+                    fc = f.clone_add_rm({cl}, sAbsorbed)
+                    print('fc:',fc, 'R3')
+                    fchildren.add(fc)
+        return fchildren

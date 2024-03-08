@@ -8,6 +8,11 @@ class Clause:
         self.cardinality = len(str_signature)
         self.signature = bitarray(str_signature)
 
+    def clone_add(self, lit: int) -> 'Clause':
+        c = Clause(self.signature.to01())
+        c.signature[lit] = True
+        return c
+    
     def get_size(self) -> int:
         return self.cardinality
 
@@ -17,9 +22,13 @@ class Clause:
     def get_order(self) -> int:
         return self.signature.count()
 
-    def has_literal(self, c: 'Clause') -> bool:
-        return any(self.signature[i] and not c.signature[i] for i in range(self.cardinality))
+    def has_some_literal(self, c: 'Clause') -> bool:
+        return any(self.signature[i] and c.signature[i] \
+                   for i in range(self.cardinality))
     
+    def missing_literals(self) -> list[int]:
+        return [i for i in range(self.cardinality) if not self.signature[i]]
+
     def __hash__(self) -> int:
         """ Hash function for Clause using the bit string. """
         return hash(self.signature.to01())
