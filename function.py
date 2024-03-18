@@ -12,10 +12,10 @@ class Function:
         self.clauses = clauses
         self.update_consistency()
 
-    def clone_add_rm(self, cAdd: Set['Clause'], cRm: Set['Clause']) -> 'Function':
+    def clone_rm_add(self, scRm: Set['Clause'], scAdd: Set['Clause']) -> 'Function':
         f = Function(self.nvars, self.clauses.copy())
-        for c in cRm: f.clauses.remove(c)
-        for c in cAdd: f.clauses.add(c)
+        for c in scRm: f.clauses.remove(c)
+        for c in scAdd: f.clauses.add(c)
         f.update_consistency()
         return f
     

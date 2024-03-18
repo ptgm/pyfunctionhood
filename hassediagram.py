@@ -35,70 +35,75 @@ class HasseDiagram:
 
     def get_f_parents(self, f: 'Function') -> Set['Function']:
         """ Returns the set of immediate parents of f. """
-        fparents = set()
-        cMaxIndpt = self.powerset.get_maximal(self.powerset.get_independent(f.clauses))
+        fParents = set()
+        # Get maximal independent clauses
+        sC = self.powerset.get_maximal(self.powerset.get_independent(f.clauses))
 
-        # Add all parents of the 1st form
-        for c in cMaxIndpt:
-            fp = f.clone_add_rm({c}, set())
-            print('fp:',fp, 'R1')
-            fparents.add(fp)
-        
+        # Add all parents from the 1st rule
+        for c in sC:
+            fp = f.clone_rm_add(set(), {c})
+            #print('fp:',fp, 'R1')
+            fParents.add(fp)
+
         # Get maximal dominated clauses
-        cMaxDom = [c for c in self.powerset.get_dominated_directly(f.clauses)\
-                   if not any([c.le(sp) for sp in cMaxIndpt])]
-        # Exclude maximal dominated, dominated by other maximal dominated
-        cMaxDom = [c for c in cMaxDom if not any([c.le(sp) for sp in cMaxDom if sp != c])]
-        print('cMaxDom:',cMaxDom)
+        lD = [d for d in self.powerset.get_maximal( \
+            self.powerset.get_dominated_directly(f.clauses))\
+                   if not any([d.le(s) for s in sC])]
+        sD = set(lD)
+        #print('lD:', lD)
 
         # Add all parents of the 2nd and 3rd form
-        for sp in cMaxDom:
-            cRm = set([c for c in f.clauses if sp.lt(c)])
-            fp = f.clone_add_rm({sp}, cRm)
-            if fp.is_consistent(): # If it's a cover: 2nd form
-                print('fp:',fp, 'R2')
-                fparents.add(fp)
-            elif len(fp.clauses) == len(f.clauses):
-                cMissingLits = fp.get_missing_lits()
-                print('sp:', sp, '  cMissingLits:',cMissingLits)
-                for spp in cMaxDom:
-                    if sp != spp and spp.has_some_literal(cMissingLits):
-                        fpp = fp.clone_add_rm({spp}, set())
-                        if fpp.is_consistent(): # If it's a cover: 3rd form
-                            # Though pair (sp,spp) may appear again as (spp,sp)
-                            # it's not a problem because fparents is a set
-                            print('fp:',fpp, 'R3')
-                            fparents.add(fpp)
-        return fparents
+        for d in lD: # TODO Check if ok, or have two sets
+            if d not in sD: continue
+            sContained = d.getContainedIn(f.clauses)
+            fp = f.clone_rm_add(sContained, {d})
+            if fp.is_consistent():
+                #print('fp:',fp,'R2')
+                fParents.add(fp)
+                sD.remove(d)
+            elif len(sContained) == 1:
+                sTmp = self.powerset.get_dominated_directly(sContained)\
+                    .intersection(sD)
+                sTmp.remove(d)
+                for elem in sTmp:
+                    fp = f.clone_rm_add(sContained, {d,elem})
+                    fParents.add(fp)
+                sD.remove(d)
+        return fParents
     
     def get_f_children(self, f: 'Function') -> Set['Function']:
         """ Returns the set of immediate children of f. """
-        fchildren, cmergeable = set(), set()
+        fChildren, lmergeable = set(), []
         
         # Add all children of the 1st form
         for s in f.clauses:
-            fc = f.clone_add_rm(set(), {s})
-            print('fcand: f \\',s, ' =',fc)
+            bMergeCand = False
+            fc = f.clone_rm_add({s}, set())
             for l in s.missing_literals():
                 sl = s.clone_add(l)
-                if len(fc.getAbsorbed(sl)) == 0:
+                sAbsorbed = f.getAbsorbed(sl)
+                if len(sAbsorbed) == 1:
                     fc.add_clause(sl)
+                elif len(sAbsorbed) == 2:
+                    bMergeCand = True
+
             if fc.is_consistent(): # If it's a cover
-                print('fc:',fc, 'R1or2')
-                fchildren.add(fc)
-            else:
-                cmergeable.add(s)
-        #print('cmergeable:',cmergeable)
-        # separar por bins de tamanhos
-        # depois fazer n C 2
-        for c in cmergeable:
+                #print('fc:',fc, 'R1orR2')
+                fChildren.add(fc)
+            elif bMergeCand:
+                lmergeable.append(s)
+        #print('lmergeable:',lmergeable)
+        while lmergeable:
+            c = lmergeable[-1]
+            fMergeable = Function(f.get_size(), set(lmergeable))
             for l in c.missing_literals():
                 cl = c.clone_add(l)
-                #print(' c:',c, '  l:',l+1, '  cl:',cl)
-                sAbsorbed = f.getAbsorbed(cl)
-                #print('   abs:',sAbsorbed)
+                sAbsorbed = fMergeable.getAbsorbed(cl)
+                #print('c:',c, 'l:',l+1, 'cl:',cl, 'sAbsorbed:',sAbsorbed)
                 if len(sAbsorbed) == 2:
-                    fc = f.clone_add_rm({cl}, sAbsorbed)
-                    print('fc:',fc, 'R3')
-                    fchildren.add(fc)
-        return fchildren
+                    fc = f.clone_rm_add(sAbsorbed, {cl})
+                    #print('fc:',fc, 'R3')
+                    fChildren.add(fc)
+            lmergeable.pop()
+
+        return fChildren

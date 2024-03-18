@@ -38,6 +38,13 @@ class Clause:
                 self.cardinality == other.cardinality and \
                 self.signature == other.signature
 
+    def getContainedIn(self, sClauses: Set['Clause']) -> Set['Clause']:
+        containedIn = set()
+        for s in sClauses:
+            if self.le(s):
+                containedIn.add(s)
+        return containedIn
+    
     def ge(self, c: 'Clause') -> bool:
         if self.cardinality != c.cardinality:
             raise ValueError("Clauses must have the same cardinality!")

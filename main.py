@@ -3,31 +3,55 @@ from function import *
 from powerset import *
 from hassediagram import *
 
-fS1 = Function(4, {Clause('1110'), Clause('1011'), Clause('0111')})
-fS2 = Function(4, {Clause('1110'), Clause('0011')})
-fS3 = Function(4, {Clause('1101'), Clause('1010'), Clause('0110'), Clause('0011')})
-fS4 = Function(4, {Clause('1010'), Clause('0110'), Clause('0011')})
-f=fS2
-print("f:",f , '| consistent:', f.is_consistent())
+import random, time
 
-p = PowerSet(4)
-# print("powerset:",p)
-#print("f.independent_clauses", p.get_independent(f.clauses))
-#print("f.max_independent_clauses", p.get_maximal(p.get_independent(f.clauses)))
-
-hd = HasseDiagram(4)
-print(hd.get_f_parents(f))
+#fS1 = Function(4, {Clause('1110'), Clause('1011'), Clause('0111')})
+#fS2 = Function(4, {Clause('1110'), Clause('0011')})
+#fS3 = Function(4, {Clause('1101'), Clause('1010'), Clause('0110'), Clause('0011')})
+#fS4 = Function(4, {Clause('1010'), Clause('0110'), Clause('0011')})
+#fX = Function(4, {Clause('1101'), Clause('1010'), Clause('0110')})
+#f=fX
+#print(hd.get_f_parents(f))
 #print(hd.get_f_children(f))
 
-# print("c?", f.is_consistent())
-# f.add_clause(c2)
-# print("f:",f)
-# print("c?", f.is_consistent())
+t1 = time.time()
+hd = HasseDiagram(8)
 
-# print("c1.subsets:", c1.get_subsets())   
+## Random walk from the infimum to the supremum
+finf = hd.get_infimum()
+fsup = hd.get_supremum()
+print("finf:", finf)
+print("fsup:", fsup)
 
-# print("c2.supersets:", c2.get_supersets())
+t2 = time.time()
+print("Time to set up the Hasse diagram:", t2-t1)
 
-# hd = HasseDiagram(3)
-# fi = hd.get_infimum()
-# print("fi:",fi)
+print('-------------------------------------------------------')
+nfunctions = 1
+f = finf
+print("f:", f)
+while f != fsup:
+    fParents = list(hd.get_f_parents(f))
+    # generate a random int to index the set of parents
+    i = random.randint(0, len(fParents)-1)
+    f = fParents[i]
+    #print("f:", f)
+    nfunctions += 1
+print("#functions:", nfunctions)
+t3 = time.time()
+print("Time to walk from infimum to supremum:", t3-t2)
+
+print('-------------------------------------------------------')
+nfunctions = 1
+f = fsup
+print("f:", f)
+while f != finf:
+    fChildren = list(hd.get_f_children(f))
+    # generate a random int to index the set of children
+    i = random.randint(0, len(fChildren)-1)
+    f = fChildren[i]
+    #print("f:", f)
+    nfunctions += 1
+print("#functions:", nfunctions)
+t4 = time.time()
+print("Time to walk from supremum to infimum:", t4-t3)
