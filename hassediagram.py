@@ -68,6 +68,7 @@ class HasseDiagram:
                 for elem in sTmp:
                     fp = f.clone_rm_add(sContained, {d,elem})
                     fParents.add(fp)
+                    #print('fp:',fp, 'R3')
                 sD.remove(d)
         return fParents
     

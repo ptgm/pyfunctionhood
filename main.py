@@ -15,7 +15,7 @@ import random, time
 #print(hd.get_f_children(f))
 
 t1 = time.time()
-hd = HasseDiagram(8)
+hd = HasseDiagram(2)
 
 ## Random walk from the infimum to the supremum
 finf = hd.get_infimum()
@@ -55,3 +55,12 @@ while f != finf:
 print("#functions:", nfunctions)
 t4 = time.time()
 print("Time to walk from supremum to infimum:", t4-t3)
+
+print('-------------------------------------------------------')
+print('-------------------------------------------------------')
+print('-------------------------------------------------------')
+hd = HasseDiagram(4)
+f = Function(4, {Clause('1101'), Clause('1010'), Clause('0111')})
+print(f)
+print(hd.get_f_parents(f))
+#print(hd.get_f_children(f))
