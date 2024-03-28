@@ -14,20 +14,20 @@ def mp_worker(data):
     finf = hd.get_infimum()
     fsup = hd.get_supremum()
 
-    tracesz, nR1, nR2, nR3 = 1, 0, 0, 0
+    tracesz, traceR1, traceR2, traceR3 = 1, 0, 0, 0
     f = finf
     while f != fsup:
-        dParents = hd.get_f_parents(f)
-        nR1 += len(dParents['R1'])
-        nR2 += len(dParents['R2'])
-        nR3 += len(dParents['R3'])
-        lParents = list(dParents['R1']) + list(dParents['R2']) + list(dParents['R3'])
+        sParents, nR1, nR2, nR3 = hd.get_f_parents(f)
+        traceR1 += nR1
+        traceR2 += nR2
+        traceR3 += nR3
+        lParents = list(sParents)
         # generate a random int to index the set of parents
         i = random.randint(0, len(lParents)-1)
         f = lParents[i]
         tracesz += 1
     t2 = time.time()
-    return (trialNum, dim, tracesz, t2-t1, nR1, nR2, nR3)
+    return (trialNum, dim, tracesz, t2-t1, traceR1, traceR2, traceR3)
 
 # read arguments from command line
 suffix = sys.argv[1]

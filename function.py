@@ -1,6 +1,5 @@
-from typing import Set, List
-from bitarray import bitarray
 from clause import *
+from typing import List
 
 class Function:
     def __init__(self, nvars:int, clauses: Set['Clause']) -> None:

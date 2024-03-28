@@ -1,5 +1,5 @@
-from typing import Set, List, Dict
 from clause import *
+from typing import List, Dict
 from collections import defaultdict
 
 class PowerSet:
