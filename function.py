@@ -10,6 +10,20 @@ class Function:
         self.nvars = nvars
         self.clauses = clauses
         self.update_consistency()
+    
+    @staticmethod
+    def fromString(nvars: int, strClauses: str) -> 'Function':
+        if not strClauses:
+            raise ValueError("Empty function string!")
+        clauses = set()
+        for strc in strClauses[2:-2].split("},{"):
+            if not strc:
+                raise ValueError("Empty clause!")
+            tmp = '0'*nvars
+            for l in strc.split(','):
+                tmp = tmp[:int(l)-1] + '1' + tmp[int(l):]
+            clauses.add(Clause(tmp))
+        return Function(nvars, clauses)
 
     def clone_rm_add(self, scRm: Set['Clause'], scAdd: Set['Clause']) -> 'Function':
         f = Function(self.nvars, self.clauses.copy())
@@ -70,7 +84,11 @@ class Function:
                 self.clauses == other.clauses
 
     def __hash__(self) -> int:
-        return hash(tuple(sorted([c.__hash__() for c in self.clauses])))
+        # Combine the hashes of the elements using XOR
+        hash_value = 0
+        for c in self.clauses:
+            hash_value ^= hash(c)
+        return hash_value
 
     def __str__(self) -> str:
         return "{" + ",".join(str(c) for c in self.clauses) + "}"

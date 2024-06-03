@@ -2,3 +2,4 @@
 *.bak
 .vscode
 __pycache__
+*.pdf

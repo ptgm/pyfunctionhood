@@ -14,10 +14,11 @@ class HasseDiagram:
 	# n=6 ->                                               7.785.062 functions
 	# n=7 ->                                       2.414.627.396.434 functions
 	# n=8 ->                          56.130.437.209.370.320.359.966 functions
-
+    # n=9 ->                                                     ... functions
 
     def __init__(self, nvars: int) -> None:
         self.nvars = nvars
+        print('----------------', nvars)
         self.powerset = PowerSet(nvars)
 
     def get_infimum(self) -> 'Function':
@@ -36,7 +37,7 @@ class HasseDiagram:
 
     def get_f_parents(self, f: 'Function') -> Tuple[Set['Function'], int, int, int]:
         """ Returns the set of immediate parents of f. """
-        fParents = set()
+        sParents = set()
         nR1, nR2, nR3 = 0, 0, 0
         # Get maximal independent clauses
         sC = self.powerset.get_maximal(self.powerset.get_independent(f.clauses))
@@ -46,7 +47,7 @@ class HasseDiagram:
             fp = f.clone_rm_add(set(), {c})
             #print('fp:',fp, 'R1')
             nR1 += 1
-            fParents.add(fp)
+            sParents.add(fp)
 
         # Get maximal dominated clauses
         lD = [d for d in self.powerset.get_maximal( \
@@ -63,7 +64,7 @@ class HasseDiagram:
             if fp.is_consistent():
                 #print('fp:',fp,'R2')
                 nR2 += 1
-                fParents.add(fp)
+                sParents.add(fp)
                 sD.remove(d)
             elif len(sContained) == 1:
                 sTmp = self.powerset.get_dominated_directly(sContained)\
@@ -71,34 +72,44 @@ class HasseDiagram:
                 sTmp.remove(d)
                 for elem in sTmp:
                     fp = f.clone_rm_add(sContained, {d,elem})
-                    fParents.add(fp)
+                    sParents.add(fp)
                     nR3 += 1
                     #print('fp:',fp, 'R3')
                 sD.remove(d)
-        return fParents, nR1, nR2, nR3
+        return sParents, nR1, nR2, nR3
     
-    def get_f_children(self, f: 'Function') -> Set['Function']:
+    def get_f_children(self, f: 'Function') -> Tuple[Set['Function'], int, int, int]:
         """ Returns the set of immediate children of f. """
-        fChildren, dmergeable = set(), {}
-        
+        sChildren, dmergeable = set(), {}
+        nR1, nR2, nR3 = 0, 0, 0
         # Add all children of the 1st form
         for s in f.clauses:
-            bMergeCand = False
+            print('s:',s)
+            bToMerge = False
+            bIsCandMaxIndpt = True
             for l in s.missing_literals():
+                print('  l:',l+1)
                 sl = s.clone_add(l)
                 sAbsorbed = f.getAbsorbed(sl)
+                print('    absorbed:',sAbsorbed)
                 if len(sAbsorbed) == 1:
+                    bIsCandMaxIndpt = False
                     fc = f.clone_rm_add({s}, {sl})
-                    if fc.is_consistent():
-                        #print('fc:',fc, 'R1')
-                        fChildren.add(fc)
+                    print('fc:',fc, 'R2')
+                    nR2+=1
+                    sChildren.add(fc)
                 elif len(sAbsorbed) == 2:
-                    bMergeCand = True
-            if bMergeCand:
+                    bToMerge = True
+            fs = f.clone_rm_add({s},set())
+            if bIsCandMaxIndpt and fs.is_consistent():
+                print('fc:',fs,'R1')
+                nR1+=1
+                sChildren.add(fs)
+            elif bToMerge:
                 sz = s.get_order()
                 if sz not in dmergeable: dmergeable[sz] = []
                 dmergeable[sz].append(s)
-        
+        #print(dmergeable)
         for sz in dmergeable:
             lmergeable = dmergeable[sz]
             while lmergeable:
@@ -111,7 +122,8 @@ class HasseDiagram:
                     if len(sAbsorbed) == 2:
                         fc = f.clone_rm_add(sAbsorbed, {cl})
                         #print('fc:',fc, 'R3')
-                        fChildren.add(fc)
+                        nR3+=1
+                        sChildren.add(fc)
                 lmergeable.pop()
 
-        return fChildren
+        return sChildren, nR1, nR2, nR3

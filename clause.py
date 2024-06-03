@@ -30,8 +30,8 @@ class Clause:
         return [i for i in range(self.cardinality) if not self.signature[i]]
 
     def __hash__(self) -> int:
-        """ Hash function for Clause using the bit string. """
-        return hash(self.signature.to01())
+        """ Hash function for Clause using the signature bit """
+        return hash(self.signature.tobytes())
 
     def __eq__(self, other: 'Clause') -> bool:
         return isinstance(other, Clause) and \
