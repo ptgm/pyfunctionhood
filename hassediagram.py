@@ -75,13 +75,13 @@ class HasseDiagram:
         # Add all parents from the 3rd rule
         for s in sDnotUsed:
             lSigmas = list(sDnotUsed[s])
-            if len(lSigmas) < 2: continue # need at least 2 clauses to be combined
+            if len(lSigmas) < 2: # needs at least 2 clauses to be combined
+                continue
             for i in range(len(lSigmas)-1):
-                siContained = d.get_contained_in(f.clauses)
                 for j in range(i + 1, len(lSigmas)):
-                    sjContained = d.get_contained_in(f.clauses)
-                    fp = f.clone_rm_add(sjContained.intersection(siContained), {lSigmas[i],lSigmas[j]})
-                    if not fp.is_consistent(): print('R3 Not Consistent : should not happen!')
+                    # by def only s contains both sigma_i and sigma_j
+                    fp = f.clone_rm_add({s}, {lSigmas[i],lSigmas[j]})
+                    # by def no need to test if isCover(fp)
                     sParents.add(fp)
                     nR3 += 1
                     #print('  fp:',fp, 'R3')
