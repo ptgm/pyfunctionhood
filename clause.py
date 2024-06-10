@@ -38,38 +38,38 @@ class Clause:
                 self.cardinality == other.cardinality and \
                 self.signature == other.signature
 
-    def getContainedIn(self, sClauses: Set['Clause']) -> Set['Clause']:
+    def get_contained_in(self, sClauses: Set['Clause']) -> Set['Clause']:
         containedIn = set()
         for s in sClauses:
-            if self.le(s):
+            if self <= s:
                 containedIn.add(s)
         return containedIn
     
-    def ge(self, c: 'Clause') -> bool:
+    def __ge__(self, c: 'Clause') -> bool:
         if self.cardinality != c.cardinality:
             raise ValueError("Clauses must have the same cardinality!")
         # with list comprehension
         return all((self.signature[i] or not c.signature[i]) for i in range(self.cardinality))
 
-    def gt(self, c: 'Clause') -> bool:
+    def __gt__(self, c: 'Clause') -> bool:
         if self.cardinality != c.cardinality:
             raise ValueError("Clauses must have the same cardinality!")
-        return self.ge(c) and not self.__eq__(c)
+        return self >= c and not self == c
 
-    def le(self, c: 'Clause') -> bool:
+    def __le__(self, c: 'Clause') -> bool:
         if self.cardinality != c.cardinality:
             raise ValueError("Clauses must have the same cardinality!")
-        return c.ge(self)
+        return c >= self
 
-    def lt(self, c: 'Clause') -> bool:
+    def __lt__(self, c: 'Clause') -> bool:
         if self.cardinality != c.cardinality:
             raise ValueError("Clauses must have the same cardinality!")
-        return c.gt(self)
+        return c > self
 
     def is_independent(self, c: 'Clause') -> bool:
         if self.cardinality != c.cardinality:
             raise ValueError("Clauses must have the same cardinality!")
-        return not self.ge(c) and not self.le(c)
+        return not self>=c and not self<=c
 
     def get_subsets(self) -> Set['Clause']:
         subsets = set()

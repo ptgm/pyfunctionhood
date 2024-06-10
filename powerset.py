@@ -75,7 +75,7 @@ class PowerSet:
         for i in range(len(l_clauses)):
             dominates = False
             for j in range(len(l_clauses)):
-                if i != j and l_clauses[i].dominates_or_equal_to(l_clauses[j]):
+                if i != j and l_clauses[i] >= l_clauses[j]:
                     dominates = True
                     break
             if not dominates:
@@ -86,7 +86,7 @@ class PowerSet:
         l_clauses = list(s_clauses)
         s_maximal = set()
         for i in range(len(s_clauses)):
-            if any([i != j and l_clauses[j].ge(l_clauses[i]) for j in range(len(s_clauses))]):
+            if any([i != j and l_clauses[j]>=l_clauses[i] for j in range(len(s_clauses))]):
                 continue
             s_maximal.add(l_clauses[i])
         return s_maximal

@@ -74,7 +74,7 @@ class Function:
     def getAbsorbed(self, c: Clause) -> Set[Clause]:
         absorbed = set()
         for s in self.clauses:
-            if s != c and s.le(c):
+            if s != c and s<=c:
                 absorbed.add(s)
         return absorbed
 
@@ -91,7 +91,7 @@ class Function:
         return hash_value
 
     def __str__(self) -> str:
-        return "{" + ",".join(str(c) for c in self.clauses) + "}"
+        return "{" + ",".join(sorted([str(c) for c in self.clauses])) + "}"
 
     def __repr__(self) -> str:
         return str(self)

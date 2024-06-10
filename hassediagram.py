@@ -18,7 +18,6 @@ class HasseDiagram:
 
     def __init__(self, nvars: int) -> None:
         self.nvars = nvars
-        print('----------------', nvars)
         self.powerset = PowerSet(nvars)
 
     def get_infimum(self) -> 'Function':
@@ -39,77 +38,89 @@ class HasseDiagram:
         """ Returns the set of immediate parents of f. """
         sParents = set()
         nR1, nR2, nR3 = 0, 0, 0
+
         # Get maximal independent clauses
         sC = self.powerset.get_maximal(self.powerset.get_independent(f.clauses))
 
+#        print('sC:',sC)
         # Add all parents from the 1st rule
         for c in sC:
             fp = f.clone_rm_add(set(), {c})
-            #print('fp:',fp, 'R1')
-            nR1 += 1
             sParents.add(fp)
-
+            nR1 += 1
+            #print('fp:',fp, 'R1')
+        
         # Get maximal dominated clauses
         lD = [d for d in self.powerset.get_maximal( \
             self.powerset.get_dominated_directly(f.clauses))\
-                   if not any([d.le(s) for s in sC])]
-        sD = set(lD)
-        #print('lD:', lD)
+                   if not any([(d<=s) for s in sC])]
+#        print('lD:',lD)
 
-        # Add all parents of the 2nd and 3rd form
-        for d in lD: # TODO Check if ok, or have two sets
-            if d not in sD: continue
-            sContained = d.getContainedIn(f.clauses)
+        # Add all parents from the 2nd rule
+        sDnotUsed = {}
+        for d in lD:
+#            print(' d:',d)
+            sContained = d.get_contained_in(f.clauses)
+#            print('  contained:',sContained)
             fp = f.clone_rm_add(sContained, {d})
             if fp.is_consistent():
-                #print('fp:',fp,'R2')
-                nR2 += 1
                 sParents.add(fp)
-                sD.remove(d)
-            elif len(sContained) == 1:
-                sTmp = self.powerset.get_dominated_directly(sContained)\
-                    .intersection(sD)
-                sTmp.remove(d)
-                for elem in sTmp:
-                    fp = f.clone_rm_add(sContained, {d,elem})
+                nR2 += 1
+                #print('  fp:',fp,'R2')
+            else:
+                for s in sContained:
+                    if s not in sDnotUsed: sDnotUsed[s] = set()
+                    sDnotUsed[s].add(d)
+
+        # Add all parents from the 3rd rule
+        for s in sDnotUsed:
+            lSigmas = list(sDnotUsed[s])
+            if len(lSigmas) < 2: continue # need at least 2 clauses to be combined
+            for i in range(len(lSigmas)-1):
+                siContained = d.get_contained_in(f.clauses)
+                for j in range(i + 1, len(lSigmas)):
+                    sjContained = d.get_contained_in(f.clauses)
+                    fp = f.clone_rm_add(sjContained.intersection(siContained), {lSigmas[i],lSigmas[j]})
+                    if not fp.is_consistent(): print('R3 Not Consistent : should not happen!')
                     sParents.add(fp)
                     nR3 += 1
-                    #print('fp:',fp, 'R3')
-                sD.remove(d)
+                    #print('  fp:',fp, 'R3')
+
         return sParents, nR1, nR2, nR3
     
     def get_f_children(self, f: 'Function') -> Tuple[Set['Function'], int, int, int]:
         """ Returns the set of immediate children of f. """
         sChildren, dmergeable = set(), {}
         nR1, nR2, nR3 = 0, 0, 0
+
         # Add all children of the 1st form
         for s in f.clauses:
-            print('s:',s)
-            bToMerge = False
-            bIsCandMaxIndpt = True
+            bToMerge, bExtendable = False, False
+            # Child function to be extended with: s \cup {l_i}
+            fs = f.clone_rm_add({s},set())
             for l in s.missing_literals():
-                print('  l:',l+1)
                 sl = s.clone_add(l)
                 sAbsorbed = f.getAbsorbed(sl)
-                print('    absorbed:',sAbsorbed)
                 if len(sAbsorbed) == 1:
-                    bIsCandMaxIndpt = False
-                    fc = f.clone_rm_add({s}, {sl})
-                    print('fc:',fc, 'R2')
-                    nR2+=1
-                    sChildren.add(fc)
+                    bExtendable = True
+                    fs = fs.clone_rm_add(set(), {sl})
                 elif len(sAbsorbed) == 2:
                     bToMerge = True
-            fs = f.clone_rm_add({s},set())
-            if bIsCandMaxIndpt and fs.is_consistent():
-                print('fc:',fs,'R1')
-                nR1+=1
+
+            if bExtendable:
                 sChildren.add(fs)
+                nR2+=1
+                #print('fc:',fs, 'R2')            
+            elif fs.is_consistent():
+                sChildren.add(fs)
+                nR1+=1
+                #print('fc:',fs, 'R1')
             elif bToMerge:
+                # Clauses are only (potentially) mergeable with others of their own size
                 sz = s.get_order()
                 if sz not in dmergeable: dmergeable[sz] = []
                 dmergeable[sz].append(s)
-        #print(dmergeable)
+
         for sz in dmergeable:
             lmergeable = dmergeable[sz]
             while lmergeable:
@@ -118,12 +129,11 @@ class HasseDiagram:
                 for l in c.missing_literals():
                     cl = c.clone_add(l)
                     sAbsorbed = fMergeable.getAbsorbed(cl)
-                    #print('c:',c, 'l:',l+1, 'cl:',cl, 'sAbsorbed:',sAbsorbed)
                     if len(sAbsorbed) == 2:
                         fc = f.clone_rm_add(sAbsorbed, {cl})
-                        #print('fc:',fc, 'R3')
-                        nR3+=1
                         sChildren.add(fc)
+                        nR3+=1
+                        #print('fc:',fc, 'R3')
                 lmergeable.pop()
 
         return sChildren, nR1, nR2, nR3

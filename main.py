@@ -4,50 +4,78 @@ from hassediagram import *
 import random, time, sys
 
 # Testing functions in arXiv paper Fig 5 ##############
-#n=4
-#fS1 = Function(n, {Clause('1110'), Clause('1011'), Clause('0111')})
-#fS2 = Function(n, {Clause('1110'), Clause('0011')})
-#fS3 = Function(n, {Clause('1101'), Clause('1010'), Clause('0110'), Clause('0011')})
-#fS4 = Function(n, {Clause('1010'), Clause('0110'), Clause('0011')})
+n=4
+fS1 = Function(n, {Clause('1110'), Clause('1011'), Clause('0111')})
+fS2 = Function(n, {Clause('1110'), Clause('0011')})
+fS3 = Function(n, {Clause('1101'), Clause('1010'), Clause('0110'), Clause('0011')})
+fS4 = Function(n, {Clause('1010'), Clause('0110'), Clause('0011')})
 
-n=3
+if len(sys.argv) < 2:
+    print('Usage: python', sys.argv[0], '<dim>')
+    sys.exit()
+n = int(sys.argv[1])
 hd = HasseDiagram(n)
-#print('Parents[',fS1,']:',hd.get_f_parents(fS1))
-#print('Childrens[',fS3,']:',hd.get_f_children(fS3))
-f1 = Function.fromString(n, '{{2,3},{1}}')
-print('f1:', f1)
-print('fChildren:', hd.get_f_children(f1))
-sys.exit()
+#print('fS:',fS4)
+#print('-----------------------------------------')
+#print('Parents[fS]:',hd.get_f_parents(fS4))
+#print('Childrens[fS]:',hd.get_f_children(fS4))
+
+
 #####################################################################
 # Testing children vs parents
-hd = HasseDiagram(3)
-
-## Random walk from the infimum to the supremum
-tracesz = 0
 finf = hd.get_infimum()
 fsup = hd.get_supremum()
+
+## Random walk from the infimum to the supremum
+tracesz, nR1, nR2, nR3 = 0, 0, 0, 0
 f = finf
 t1 = time.time()
 while f != fsup:
-    print('-----------------------------------')
-    print('f:',f)
-    sParents, _, _, _ = hd.get_f_parents(f)
+    sParents, n1, n2, n3 = hd.get_f_parents(f)
+    nR1 += n1
+    nR2 += n2
+    nR3 += n3
     lParents = list(sParents)
-    print('lP:',lParents)
     # generate a random int to index the set of parents
     i = random.randint(0, len(lParents)-1)
-    print('lP['+str(i)+']:',lParents[i])
     # check parent children -- begin
     sChildren, _, _, _ = hd.get_f_children(lParents[i])
-    print('sC:',sChildren)
     if f not in sChildren:
-        print('.f:', f)
-        print('.lP[i]:', lParents[i])
-        print('.lP[i].children:', sChildren)
+        print('f:', f)
+        print('lParents:', lParents)
+        print('lP[i]:', lParents[i])
+        print('lP[i].children:', sChildren)
         sys.exit()
     # check parent children -- end
     f = lParents[i]
     tracesz += 1
 t2 = time.time()
 print('Time:', t2-t1)
-print('Sz:', tracesz)
+print('Sz:', tracesz, ' nR1:',nR1, ' nR2:',nR2, ' nR3:',nR3)
+
+## Random walk from the supremum to the infimum
+tracesz, nR1, nR2, nR3 = 0, 0, 0, 0
+f = fsup
+t1 = time.time()
+while f != finf:
+    sChildren, n1, n2, n3 = hd.get_f_children(f)
+    nR1 += n1
+    nR2 += n2
+    nR3 += n3
+    lChildren = list(sChildren)
+    # generate a random int to index the set of children
+    i = random.randint(0, len(lChildren)-1)
+    # check child parents -- begin
+    sParents, _, _, _ = hd.get_f_parents(lChildren[i])
+    if f not in sParents:
+        print('f:', f)
+        print('lChildren:', lChildren)
+        print('lC[i]:', lChildren[i])
+        print('lC[i].parents:', sParents)
+        sys.exit()
+    # check child parents -- end
+    f = lChildren[i]
+    tracesz += 1
+t2 = time.time()
+print('Time:', t2-t1)
+print('Sz:', tracesz, ' nR1:',nR1, ' nR2:',nR2, ' nR3:',nR3)
