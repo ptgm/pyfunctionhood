@@ -3,23 +3,17 @@ from function import *
 from hassediagram import *
 import random, time, sys
 
-# Testing functions in arXiv paper Fig 5 ##############
-n=4
-fS1 = Function(n, {Clause('1110'), Clause('1011'), Clause('0111')})
-fS2 = Function(n, {Clause('1110'), Clause('0011')})
-fS3 = Function(n, {Clause('1101'), Clause('1010'), Clause('0110'), Clause('0011')})
-fS4 = Function(n, {Clause('1010'), Clause('0110'), Clause('0011')})
+################## Functions in arXiv paper Fig 5 ##################
+#fS1 = Function(n, {Clause('1110'), Clause('1011'), Clause('0111')})
+#fS2 = Function(n, {Clause('1110'), Clause('0011')})
+#fS3 = Function(n, {Clause('1110'), Clause('1101'), Clause('0011')})
+#fS4 = Function(n, {Clause('1010'), Clause('0110'), Clause('0011')})
 
 if len(sys.argv) < 2:
     print('Usage: python', sys.argv[0], '<dim>')
     sys.exit()
 n = int(sys.argv[1])
 hd = HasseDiagram(n)
-#print('fS:',fS4)
-#print('-----------------------------------------')
-#print('Parents[fS]:',hd.get_f_parents(fS4))
-#print('Childrens[fS]:',hd.get_f_children(fS4))
-
 
 #####################################################################
 # Testing children vs parents
