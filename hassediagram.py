@@ -34,38 +34,31 @@ class HasseDiagram:
         """ Returns the number of variables of the Hasse diagram. """
         return self.nvars
 
-    def get_f_parents(self, f: 'Function') -> Tuple[Set['Function'], int, int, int]:
+    def get_f_parents(self, f: 'Function') -> Tuple[Set['Function'], Set['Function'], Set['Function']]:
         """ Returns the set of immediate parents of f. """
-        sParents = set()
-        nR1, nR2, nR3 = 0, 0, 0
+        s1Parents, s2Parents, s3Parents = set(), set(), set()
 
         # Get maximal independent clauses
         sC = self.powerset.get_maximal(self.powerset.get_independent(f.clauses))
 
-#        print('sC:',sC)
         # Add all parents from the 1st rule
         for c in sC:
             fp = f.clone_rm_add(set(), {c})
-            sParents.add(fp)
-            nR1 += 1
+            s1Parents.add(fp)
             #print('fp:',fp, 'R1')
         
         # Get maximal dominated clauses
         lD = [d for d in self.powerset.get_maximal( \
             self.powerset.get_dominated_directly(f.clauses))\
                    if not any([(d<=s) for s in sC])]
-#        print('lD:',lD)
 
         # Add all parents from the 2nd rule
         sDnotUsed = {}
         for d in lD:
-#            print(' d:',d)
             sContained = d.get_contained_in(f.clauses)
-#            print('  contained:',sContained)
             fp = f.clone_rm_add(sContained, {d})
             if fp.is_consistent():
-                sParents.add(fp)
-                nR2 += 1
+                s2Parents.add(fp)
                 #print('  fp:',fp,'R2')
             else:
                 for s in sContained:
@@ -82,16 +75,15 @@ class HasseDiagram:
                     # by def only s contains both sigma_i and sigma_j
                     fp = f.clone_rm_add({s}, {lSigmas[i],lSigmas[j]})
                     # by def no need to test if isCover(fp)
-                    sParents.add(fp)
-                    nR3 += 1
+                    s3Parents.add(fp)
                     #print('  fp:',fp, 'R3')
 
-        return sParents, nR1, nR2, nR3
+        return s1Parents, s2Parents, s3Parents
     
-    def get_f_children(self, f: 'Function') -> Tuple[Set['Function'], int, int, int]:
+    def get_f_children(self, f: 'Function') -> Tuple[Set['Function'], Set['Function'], Set['Function']]:
         """ Returns the set of immediate children of f. """
-        sChildren, dmergeable = set(), {}
-        nR1, nR2, nR3 = 0, 0, 0
+        s1Children, s2Children, s3Children = set(), set(), set()
+        dmergeable = {}
 
         # Add all children of the 1st form
         for s in f.clauses:
@@ -108,12 +100,10 @@ class HasseDiagram:
                     bToMerge = True
 
             if bExtendable:
-                sChildren.add(fs)
-                nR2+=1
+                s2Children.add(fs)
                 #print('fc:',fs, 'R2')            
             elif fs.is_consistent():
-                sChildren.add(fs)
-                nR1+=1
+                s1Children.add(fs)
                 #print('fc:',fs, 'R1')
             elif bToMerge:
                 # Clauses are only (potentially) mergeable with others of their own size
@@ -131,9 +121,8 @@ class HasseDiagram:
                     sAbsorbed = fMergeable.getAbsorbed(cl)
                     if len(sAbsorbed) == 2:
                         fc = f.clone_rm_add(sAbsorbed, {cl})
-                        sChildren.add(fc)
-                        nR3+=1
+                        s3Children.add(fc)
                         #print('fc:',fc, 'R3')
                 lmergeable.pop()
 
-        return sChildren, nR1, nR2, nR3
+        return s1Children, s2Children, s3Children

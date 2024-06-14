@@ -1,6 +1,3 @@
-from clause import *
-from function import *
-from powerset import *
 from hassediagram import *
 
 import random, time, sys, multiprocessing, csv
@@ -14,20 +11,20 @@ def mp_worker(data):
     finf = hd.get_infimum()
     fsup = hd.get_supremum()
 
-    tracesz, traceR1, traceR2, traceR3 = 1, 0, 0, 0
+    tracesz, nR1, nR2, nR3 = 1, 0, 0, 0
     f = finf
     while f != fsup:
-        sParents, nR1, nR2, nR3 = hd.get_f_parents(f)
-        traceR1 += nR1
-        traceR2 += nR2
-        traceR3 += nR3
-        lParents = list(sParents)
+        s1Parents, s2Parents, s3Parents = hd.get_f_parents(f)
+        nR1 += len(s1Parents)
+        nR2 += len(s2Parents)
+        nR3 += len(s3Parents)
+        lParents = list(s1Parents)+list(s2Parents)+list(s3Parents)
         # generate a random int to index the set of parents
         i = random.randint(0, len(lParents)-1)
         f = lParents[i]
         tracesz += 1
     t2 = time.time()
-    return (trialNum, dim, tracesz, t2-t1, traceR1, traceR2, traceR3)
+    return (trialNum, dim, tracesz, t2-t1, nR1, nR2, nR3)
 
 # read arguments from command line
 suffix = sys.argv[1]

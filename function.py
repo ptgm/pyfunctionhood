@@ -4,21 +4,22 @@ from typing import List
 class Function:
     def __init__(self, nvars:int, clauses: Set['Clause']) -> None:
         if not clauses:
-            raise ValueError("Empty set of clauses!")
+            raise ValueError('Empty set of clauses!')
         if nvars <= 0 or any(c.get_size() != nvars for c in clauses):
-            raise ValueError("All clauses must have the same size!")
+            raise ValueError('One clause has size !=' + str(nvars)+'!')
         self.nvars = nvars
         self.clauses = clauses
         self.update_consistency()
     
     @staticmethod
     def fromString(nvars: int, strClauses: str) -> 'Function':
+        strClauses = strClauses.replace(' ', '')
         if not strClauses:
-            raise ValueError("Empty function string!")
+            raise ValueError('Empty function string!')
         clauses = set()
-        for strc in strClauses[2:-2].split("},{"):
+        for strc in strClauses[2:-2].split('},{'):
             if not strc:
-                raise ValueError("Empty clause!")
+                raise ValueError('Empty clause!')
             tmp = '0'*nvars
             for l in strc.split(','):
                 tmp = tmp[:int(l)-1] + '1' + tmp[int(l):]
@@ -91,7 +92,7 @@ class Function:
         return hash_value
 
     def __str__(self) -> str:
-        return "{" + ",".join(sorted([str(c) for c in self.clauses])) + "}"
+        return '{' + ','.join(sorted([str(c) for c in self.clauses])) + '}'
 
     def __repr__(self) -> str:
         return str(self)
