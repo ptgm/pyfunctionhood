@@ -1,5 +1,6 @@
-from hassediagram import *
 import random, time, sys
+sys.path.append('../')
+from hassediagram import *
 
 ################## Functions in arXiv paper Fig 5 ##################
 #fS1 = Function(n, {Clause('1110'), Clause('1011'), Clause('0111')})

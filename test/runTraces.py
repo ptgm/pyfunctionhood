@@ -1,6 +1,6 @@
-from hassediagram import *
-
 import random, time, sys, multiprocessing, csv
+sys.path.append('../')
+from hassediagram import *
 
 def mp_worker(data):
     dHD, trialNum = data[0], data[1]
