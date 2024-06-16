@@ -37,7 +37,7 @@ while f != fsup:
         print('f:', f)
         print('lParents:', lParents)
         print('lP[i]:', lParents[i])
-        print('lP[i].children:', sChildren)
+        print('lP[i].children:', s1Children | s2Children | s3Children)
         sys.exit()
     # check parent children -- end
     f = lParents[i]
@@ -64,7 +64,7 @@ while f != finf:
         print('f:', f)
         print('lChildren:', lChildren)
         print('lC[i]:', lChildren[i])
-        print('lC[i].parents:', sParents)
+        print('lC[i].parents:', s1Parents | s2Parents | s3Parents)
         sys.exit()
     # check child parents -- end
     f = lChildren[i]
