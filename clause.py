@@ -33,7 +33,7 @@ class Clause:
         """ Hash function for Clause using the signature bit """
         return hash(self.signature.tobytes())
 
-    def __eq__(self, other: 'Clause') -> bool:
+    def __eq__(self, other) -> bool:
         return isinstance(other, Clause) and \
                 self.cardinality == other.cardinality and \
                 self.signature == other.signature

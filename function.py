@@ -1,5 +1,5 @@
 from clause import *
-from typing import List
+from typing import Set
 
 class Function:
     def __init__(self, nvars:int, clauses: Set['Clause']) -> None:
@@ -79,7 +79,7 @@ class Function:
                 absorbed.add(s)
         return absorbed
 
-    def __eq__(self, other: 'Function') -> bool:
+    def __eq__(self, other) -> bool:
         return isinstance(other, Function) and \
                 self.nvars == other.nvars and \
                 self.clauses == other.clauses

@@ -7,13 +7,13 @@ class HasseDiagram:
     # Dedeking number: number of monotone Boolean functions of n variables:
     #   https://oeis.org/A000372
     # Number of monotone non-degenerate Boolean functions of n variables:
-	# n=2 ->                                                       2 functions
-	# n=3 ->                                                       9 functions
-	# n=4 ->                                                     114 functions
-	# n=5 ->                                                   6 894 functions
-	# n=6 ->                                               7 785 062 functions
-	# n=7 ->                                       2 414 627 396 434 functions
-	# n=8 ->                          56 130 437 209 370 320 359 966 functions
+    # n=2 ->                                                       2 functions
+    # n=3 ->                                                       9 functions
+    # n=4 ->                                                     114 functions
+    # n=5 ->                                                   6 894 functions
+    # n=6 ->                                               7 785 062 functions
+    # n=7 ->                                       2 414 627 396 434 functions
+    # n=8 ->                          56 130 437 209 370 320 359 966 functions
     # n=9 -> 286 386 577 668 298 410 623 295 216 696 338 374 471 993 functions
 
     def __init__(self, nvars: int) -> None:

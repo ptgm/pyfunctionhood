@@ -37,7 +37,7 @@ def GUI_mode():
 
     def default_values():
         varFunction.set('{{1,2,3},{1,3,4},{2,3,4}}')
-        varDimension.set('4')
+        varDimension.set(4)
         outputText.delete(1.0, "end")  # Clear previous output
         outputText.insert(1.0, '')
 
@@ -115,9 +115,6 @@ def GUI_mode():
     # Text area with grid placement and set state to disabled
     outputText = tk.Text(bottomFrame, width=60, height=10)#, state="disabled")
     outputText.grid(row=row, columnspan=2)  # Span across two columns
-#    scrollbar = tk.Scrollbar(bottomFrame)
-#    outputText.config(yscrollcommand=scrollbar.set)
-#    scrollbar.config(command=outputText.yview)
 
     row += 1
     # Default values
