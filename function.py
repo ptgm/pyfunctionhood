@@ -65,20 +65,6 @@ class Function:
             bcover |= c.get_signature()
         return bcover.all()
 
-    def get_missing_lits(self) -> Clause: # TODO: call clause method
-        bcover = bitarray('0'*self.nvars)
-        for c in self.clauses:
-            bcover |= c.get_signature()
-        bcover.invert()
-        return Clause(bcover.to01())
-    
-    def getAbsorbed(self, c: Clause) -> Set[Clause]:
-        absorbed = set()
-        for s in self.clauses:
-            if s != c and s<=c:
-                absorbed.add(s)
-        return absorbed
-
     def __eq__(self, other) -> bool:
         return isinstance(other, Function) and \
                 self.nvars == other.nvars and \

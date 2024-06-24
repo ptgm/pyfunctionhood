@@ -33,18 +33,25 @@ class Clause:
         """ Hash function for Clause using the signature bit """
         return hash(self.signature.tobytes())
 
+    def get_containing(self, sClauses: Set['Clause']) -> Set['Clause']:
+        containing = set()
+        for s in sClauses:
+            if self <= s:
+                containing.add(s)
+        return containing
+
+    def get_contained(self, sClauses: Set['Clause']) -> Set['Clause']:
+        contained = set()
+        for s in sClauses:
+            if s != self and s <= self:
+                contained.add(s)
+        return contained
+    
     def __eq__(self, other) -> bool:
         return isinstance(other, Clause) and \
                 self.cardinality == other.cardinality and \
                 self.signature == other.signature
 
-    def get_contained_in(self, sClauses: Set['Clause']) -> Set['Clause']:
-        containedIn = set()
-        for s in sClauses:
-            if self <= s:
-                containedIn.add(s)
-        return containedIn
-    
     def __ge__(self, c: 'Clause') -> bool:
         if self.cardinality != c.cardinality:
             raise ValueError("Clauses must have the same cardinality!")

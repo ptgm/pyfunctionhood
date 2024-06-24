@@ -55,7 +55,7 @@ class HasseDiagram:
         # Add all parents from the 2nd rule
         sDnotUsed = {}
         for d in lD:
-            sContained = d.get_contained_in(f.clauses)
+            sContained = d.get_containing(f.clauses)
             fp = f.clone_rm_add(sContained, {d})
             if fp.is_consistent():
                 s2Parents.add(fp)
@@ -92,7 +92,7 @@ class HasseDiagram:
             fs = f.clone_rm_add({s},set())
             for l in s.missing_literals():
                 sl = s.clone_add(l)
-                sAbsorbed = f.getAbsorbed(sl)
+                sAbsorbed = sl.get_contained(f.clauses)
                 if len(sAbsorbed) == 1:
                     bExtendable = True
                     fs = fs.clone_rm_add(set(), {sl})
@@ -118,7 +118,7 @@ class HasseDiagram:
                 fMergeable = Function(f.get_size(), set(lmergeable))
                 for l in c.missing_literals():
                     cl = c.clone_add(l)
-                    sAbsorbed = fMergeable.getAbsorbed(cl)
+                    sAbsorbed = cl.get_contained(fMergeable.clauses)
                     if len(sAbsorbed) == 2:
                         fc = f.clone_rm_add(sAbsorbed, {cl})
                         s3Children.add(fc)
