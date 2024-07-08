@@ -1,7 +1,7 @@
 pyFunctionHood: local computation of immediate neighbours of a given monotone non-degenerate Boolean function
 =================================================================================
 
-This Python library implements the set of rules described in [arxiv:...](https://arxiv.org/abs/...), to compute the immediate neighbours of a given monotone non-degenerate Boolean function, without the need to generate the whole function space.
+This Python library implements the set of rules described in [arxiv:2407.01337](https://arxiv.org/abs/2407.01337), to compute the immediate neighbours of a given monotone non-degenerate Boolean function, without the need to generate the whole function space.
 
 Here, immediate neighbours, are the monotone Boolean functions that are immediately above (or below) with respect to the partial order, in other words, are the functions that add/remove the minimum number of entries in the truth table.
 
@@ -107,7 +107,7 @@ This code is available under GPL-3.0.
 Cite
 ----
 
-This work is available on [arxiv:...](https://arxiv.org/abs/...).
+This work is available on [arxiv:2407.01337](https://arxiv.org/abs/2407.01337).
 
 Authors
 -------
