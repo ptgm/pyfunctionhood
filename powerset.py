@@ -46,7 +46,7 @@ class PowerSet:
         return s_dominant
 
     def get_dominated_recursively(self, c: 'Clause', s_seen: Set['Clause']) -> Set['Clause']:
-        for c_subset in self.subset_clauses.get(c):
+        for c_subset in self.subset_clauses.get(c, set()):
             if c_subset not in s_seen:
                 s_seen.add(c_subset)
                 s_seen.update(self.get_dominated_recursively(c_subset, s_seen))
@@ -70,26 +70,10 @@ class PowerSet:
         return s_diff
 
     def get_minimal(self, s_clauses: Set['Clause']) -> Set['Clause']:
-        l_clauses = list(s_clauses)
-        s_minimal = set()
-        for i in range(len(l_clauses)):
-            dominates = False
-            for j in range(len(l_clauses)):
-                if i != j and l_clauses[i] >= l_clauses[j]:
-                    dominates = True
-                    break
-            if not dominates:
-                s_minimal.add(l_clauses[i])
-        return s_minimal
+        return { s1 for s1 in s_clauses if not any( s1 != s2 and s2 <= s1 for s2 in s_clauses) }
 
     def get_maximal(self, s_clauses: Set['Clause']) -> Set['Clause']:
-        l_clauses = list(s_clauses)
-        s_maximal = set()
-        for i in range(len(s_clauses)):
-            if any([i != j and l_clauses[j]>=l_clauses[i] for j in range(len(s_clauses))]):
-                continue
-            s_maximal.add(l_clauses[i])
-        return s_maximal
+        return { s1 for s1 in s_clauses if not any( s1 != s2 and s2 >= s1 for s2 in s_clauses) }
 
     def __str__(self) -> str:
         s = ""

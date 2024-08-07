@@ -50,14 +50,10 @@ class Function:
         return self.consistent
 
     def update_consistency(self) -> None:
-        self.consistent = self.has_independent_clauses() and self.is_cover()
+        self.consistent = self.is_independent() and self.is_cover()
 
-    def has_independent_clauses(self) -> bool:
-        for c1 in self.clauses:
-            for c2 in self.clauses:
-                if c1 != c2 and not c1.is_independent(c2):
-                    return False
-        return True
+    def is_independent(self) -> bool:
+        return all(c1.is_independent(c2) for c1 in self.clauses for c2 in self.clauses if c1 != c2)
 
     def is_cover(self) -> bool:
         bcover = bitarray('0'*self.nvars)
@@ -82,3 +78,23 @@ class Function:
 
     def __repr__(self) -> str:
         return str(self)
+
+    def evaluate(self, signs: bitarray, values: bitarray) -> bool:
+        return any(c.evaluate(signs, values) for c in self.clauses)
+
+    def get_level(self) -> list[int]:
+        return sorted([(self.nvars - c.get_order()) for c in self.clauses], reverse=True)
+
+    def level_cmp(self, other: 'Function') -> int:
+        lself, lother = self.get_level(), other.get_level()
+        szself, szother = len(lself), len(lother)
+
+        # Compare element by element
+        for i in range(min(szself, szother)):
+            if   lself[i] > lother[i]: return 1
+            elif lself[i] < lother[i]: return -1
+
+        if   szself  < szother: return -1
+        elif szself == szother: return  0
+        else:                   return  1
+

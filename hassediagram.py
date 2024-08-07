@@ -5,16 +5,16 @@ from typing import Tuple
 
 class HasseDiagram:
     # Dedeking number: number of monotone Boolean functions of n variables:
-    #   https://oeis.org/A000372
+    #  https://oeis.org/A000372
     # Number of monotone non-degenerate Boolean functions of n variables:
-    # n=2 ->                                                       2 functions
-    # n=3 ->                                                       9 functions
-    # n=4 ->                                                     114 functions
-    # n=5 ->                                                   6 894 functions
-    # n=6 ->                                               7 785 062 functions
-    # n=7 ->                                       2 414 627 396 434 functions
-    # n=8 ->                          56 130 437 209 370 320 359 966 functions
-    # n=9 -> 286 386 577 668 298 410 623 295 216 696 338 374 471 993 functions
+    #  n=2 ->                                                       2 functions
+    #  n=3 ->                                                       9 functions
+    #  n=4 ->                                                     114 functions
+    #  n=5 ->                                                   6 894 functions
+    #  n=6 ->                                               7 785 062 functions
+    #  n=7 ->                                       2 414 627 396 434 functions
+    #  n=8 ->                          56 130 437 209 370 320 359 966 functions
+    #  n=9 -> 286 386 577 668 298 410 623 295 216 696 338 374 471 993 functions
 
     def __init__(self, nvars: int) -> None:
         self.nvars = nvars
@@ -42,10 +42,7 @@ class HasseDiagram:
         sC = self.powerset.get_maximal(self.powerset.get_independent(f.clauses))
 
         # Add all parents from the 1st rule
-        for c in sC:
-            fp = f.clone_rm_add(set(), {c})
-            s1Parents.add(fp)
-            #print('fp:',fp, 'R1')
+        s1Parents = { f.clone_rm_add(set(), { c }) for c in sC }
         
         # Get maximal dominated clauses
         lD = [d for d in self.powerset.get_maximal( \
@@ -90,7 +87,7 @@ class HasseDiagram:
             bToMerge, bExtendable = False, False
             # Child function to be extended with: s \cup {l_i}
             fs = f.clone_rm_add({s},set())
-            for l in s.missing_literals():
+            for l in s.get_off_literals():
                 sl = s.clone_add(l)
                 sAbsorbed = sl.get_contained(f.clauses)
                 if len(sAbsorbed) == 1:
@@ -116,7 +113,7 @@ class HasseDiagram:
             while lmergeable:
                 c = lmergeable[-1]
                 fMergeable = Function(f.get_size(), set(lmergeable))
-                for l in c.missing_literals():
+                for l in c.get_off_literals():
                     cl = c.clone_add(l)
                     sAbsorbed = cl.get_contained(fMergeable.clauses)
                     if len(sAbsorbed) == 2:
