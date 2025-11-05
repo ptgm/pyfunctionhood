@@ -1,10 +1,16 @@
-import tkinter as tk
-from hassediagram import *
 import sys
 
+from .hassediagram import HasseDiagram
+from .function import Function
 
 def GUI_mode():
-
+    try:
+        import tkinter as tk
+    except ImportError:
+        print("ERROR: tkinter module is not available. GUI mode cannot be started.")
+        print("Please install tkinter or run in command line mode.")
+        sys.exit(1)
+ 
     def get_parents():
         try:
             idim = int(varDimension.get())
@@ -132,7 +138,7 @@ def GUI_mode():
 def usage():
     print('\nFor graphical mode, run without arguments: python', sys.argv[0])
     print('\nFor command line mode, use the following arguments:')
-    print('Usage example: python', sys.argv[0], '<type>', '<dimension>', '<function>')
+    print('Usage example:', sys.argv[0], '<type>', '<dimension>', '<function>')
     print(' <type>:      [p]arents or [c]hildren')
     print(' <dimension>: 4')
     print(' <function>:  "{{1,2,3},{1,3,4},{2,3,4}}"')
@@ -166,9 +172,11 @@ def command_line_mode():
 
 
 #--------------------------------------------------------------------
-
-if __name__ == '__main__':
+def main():
     if len(sys.argv) == 1: 
         GUI_mode()
     else:
         command_line_mode()
+
+if __name__ == '__main__':
+    main()

@@ -1,4 +1,4 @@
-from clause import *
+from .clause import Clause
 from typing import Set
 from collections import defaultdict
 

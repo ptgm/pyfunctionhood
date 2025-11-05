@@ -1,5 +1,8 @@
 *~
 *.bak
 .vscode
-__pycache__
+__pycache__/
 *.pdf
+build/
+dist/
+*.egg-info/

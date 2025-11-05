@@ -1,7 +1,7 @@
-from clause import *
-from function import *
-from powerset import *
-from typing import Tuple
+from .clause import Clause
+from .function import Function
+from .powerset import PowerSet
+from typing import Tuple, Set
 
 class HasseDiagram:
     # Dedeking number: number of monotone Boolean functions of n variables:

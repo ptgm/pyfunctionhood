@@ -1,4 +1,5 @@
-from clause import *
+from .clause import Clause
+from bitarray import bitarray
 from typing import Set
 
 class Function:
