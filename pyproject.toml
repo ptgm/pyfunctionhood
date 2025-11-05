@@ -10,11 +10,11 @@ readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "AGPL-3.0" }
 authors = [
-  { name = "Patrícia Roxo", email="Patricia.Roxo@ens.fr"},
-  { name = "José E. R. Cury", email="jercury@gmail.com" },
-  { name = "Vasco Manquinho", email="Vasco.Manquinho@tecnico.ulisboa.pt" },
-  { name = "Claudine Chaouiya", email="Claudine.Chaouiya@univ-amu.fr" },
-  { name = "Pedro T. Monteiro", email="Pedro.Tiago.Monteiro@tecnico.ulisboa.pt" }
+  { name = "Pedro T. Monteiro", email="Pedro.Tiago.Monteiro@tecnico.ulisboa.pt" },
+  { name = "Patrícia Roxo" },
+  { name = "José E. R. Cury" },
+  { name = "Vasco Manquinho" },
+  { name = "Claudine Chaouiya" }
 ]
 keywords = ["boolean", "monotone", "hasse-diagram", "functions", "bitarray"]
 classifiers = [
