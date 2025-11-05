@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyfunctionhood"
-version = "0.1.1"
+version = "0.1.2"
 description = "Local computation of immediate neighbours of a given monotone non-degenerate Boolean function"
 readme = "README.md"
 requires-python = ">=3.9"
