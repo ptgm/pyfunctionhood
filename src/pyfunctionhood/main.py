@@ -1,5 +1,6 @@
 import sys
 
+from bitarray import bitarray
 from .hassediagram import HasseDiagram
 from .function import Function
 
@@ -11,12 +12,26 @@ def GUI_mode():
         print("Please install tkinter or run in command line mode.")
         sys.exit(1)
  
+    def get_changed_signs(idim):
+        """ Returns None if no sign changed, otherwise the corresponding bitarray. """
+        strSigns = varChangedSigns.get().strip()
+        if not strSigns:
+            return None
+        if len(strSigns) != idim or any(c not in ('0', '1') for c in strSigns):
+            raise ValueError('changed signs must be a string of ' + str(idim) + ' bits (0/1)!')
+        changed_signs = bitarray(strSigns)
+        return changed_signs if changed_signs.count() else None
+
     def get_parents():
         try:
             idim = int(varDimension.get())
             hd = HasseDiagram(idim)
             f = Function.fromString(idim, varFunction.get())
-            s1Parents, s2Parents, s3Parents = hd.get_f_parents(f)
+            changed_signs = get_changed_signs(idim)
+            if changed_signs is None:
+                s1Parents, s2Parents, s3Parents = hd.get_f_parents(f)
+            else:
+                s1Parents, s2Parents, s3Parents = hd.get_f_parents_with_sign_changes(f, changed_signs)
             lParents = ['R1 ' + str(f) for f in s1Parents]\
                     + ['R2 ' + str(f) for f in s2Parents]\
                     + ['R3 ' + str(f) for f in s3Parents]
@@ -31,7 +46,11 @@ def GUI_mode():
             idim = int(varDimension.get())
             hd = HasseDiagram(idim)
             f = Function.fromString(idim, varFunction.get())
-            s1Children, s2Children, s3Children = hd.get_f_children(f)
+            changed_signs = get_changed_signs(idim)
+            if changed_signs is None:
+                s1Children, s2Children, s3Children = hd.get_f_children(f)
+            else:
+                s1Children, s2Children, s3Children = hd.get_f_children_with_sign_changes(f, changed_signs)
             lChildren = ['R1 ' + str(f) for f in s1Children]\
                     + ['R2 ' + str(f) for f in s2Children]\
                     + ['R3 ' + str(f) for f in s3Children]
@@ -44,6 +63,7 @@ def GUI_mode():
     def default_values():
         varFunction.set('{{1,2,3},{1,3,4},{2,3,4}}')
         varDimension.set(4)
+        varChangedSigns.set('')
         outputText.delete(1.0, "end")  # Clear previous output
         outputText.insert(1.0, '')
 
@@ -96,6 +116,13 @@ def GUI_mode():
     entryFunction.grid(row=row, column=1, columnspan=2)
 
     row += 1
+    labelChangedSigns = tk.Label(root, text="Changed Signs")
+    labelChangedSigns.grid(row=row, column=0, sticky='w')
+    varChangedSigns = tk.StringVar(value='')  # empty means no sign changed
+    entryChangedSigns = tk.Entry(root, textvariable=varChangedSigns, width=48)
+    entryChangedSigns.grid(row=row, column=1, columnspan=2)
+
+    row += 1
     bottomFrame = tk.Frame(root, padx=5, pady=5)
     bottomFrame.grid(row=row, columnspan=2)
 
@@ -138,14 +165,15 @@ def GUI_mode():
 def usage():
     print('\nFor graphical mode, run without arguments: python', sys.argv[0])
     print('\nFor command line mode, use the following arguments:')
-    print('Usage example:', sys.argv[0], '<type>', '<dimension>', '<function>')
-    print(' <type>:      [p]arents or [c]hildren')
-    print(' <dimension>: 4')
-    print(' <function>:  "{{1,2,3},{1,3,4},{2,3,4}}"')
+    print('Usage example:', sys.argv[0], '<type>', '<dimension>', '<function>', '[<changed_signs>]')
+    print(' <type>:          [p]arents or [c]hildren')
+    print(' <dimension>:     4')
+    print(' <function>:      "{{1,2,3},{1,3,4},{2,3,4}}"')
+    print(' <changed_signs>: optional, e.g. "0100" (bit i=1 means variable i switched sign)')
     sys.exit(1)
 
 def command_line_mode():
-    if len(sys.argv) != 4:
+    if len(sys.argv) not in (4, 5):
         print('ERROR: invalid number of arguments!')
         usage()
     if sys.argv[1] not in ('p','parents','c','children'):
@@ -155,14 +183,31 @@ def command_line_mode():
     ndim = int(sys.argv[2])
     hd = HasseDiagram(ndim)
     f = Function.fromString(ndim, sys.argv[3])
+
+    changed_signs = None
+    if len(sys.argv) == 5:
+        strSigns = sys.argv[4]
+        if len(strSigns) != ndim or any(c not in ('0', '1') for c in strSigns):
+            print('ERROR: invalid <changed_signs>')
+            usage()
+        changed_signs = bitarray(strSigns)
+        if changed_signs.count() == 0:
+            changed_signs = None
+
     if sys.argv[1] in ('p','parents'):
-        s1Parents, s2Parents, s3Parents = hd.get_f_parents(f)
+        if changed_signs is None:
+            s1Parents, s2Parents, s3Parents = hd.get_f_parents(f)
+        else:
+            s1Parents, s2Parents, s3Parents = hd.get_f_parents_with_sign_changes(f, changed_signs)
         lParents = ['R1 ' + str(f) for f in s1Parents]\
                  + ['R2 ' + str(f) for f in s2Parents]\
                  + ['R3 ' + str(f) for f in s3Parents]
         print('\n'.join(lParents))
     else:
-        s1Children, s2Children, s3Children = hd.get_f_children(f)
+        if changed_signs is None:
+            s1Children, s2Children, s3Children = hd.get_f_children(f)
+        else:
+            s1Children, s2Children, s3Children = hd.get_f_children_with_sign_changes(f, changed_signs)
         lChildren = ['R1 ' + str(f) for f in s1Children]\
                   + ['R2 ' + str(f) for f in s2Children]\
                   + ['R3 ' + str(f) for f in s3Children]

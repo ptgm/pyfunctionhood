@@ -10,11 +10,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "AGPL-3.0" }
 authors = [
-  { name = "Pedro T. Monteiro", email="Pedro.Tiago.Monteiro@tecnico.ulisboa.pt" },
-  { name = "Patrícia Roxo" },
-  { name = "José E. R. Cury" },
-  { name = "Vasco Manquinho" },
-  { name = "Claudine Chaouiya" }
+  { name = "Pedro T. Monteiro", email="Pedro.Tiago.Monteiro@tecnico.ulisboa.pt" }
 ]
 keywords = ["boolean", "monotone", "hasse-diagram", "functions", "bitarray"]
 classifiers = [

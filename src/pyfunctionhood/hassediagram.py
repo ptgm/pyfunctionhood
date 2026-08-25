@@ -1,6 +1,7 @@
 from .clause import Clause
 from .function import Function
 from .powerset import PowerSet
+from bitarray import bitarray
 from typing import Tuple, Set
 
 class HasseDiagram:
@@ -123,3 +124,53 @@ class HasseDiagram:
                 lmergeable.pop()
 
         return s1Children, s2Children, s3Children
+
+    def get_f_parents_with_sign_changes(self, f: 'Function', changed_signs: bitarray) -> Tuple[Set['Function'], Set['Function'], Set['Function']]:
+        """ Returns the set of immediate parents of f when the variables/regulators
+        flagged in changed_signs have switched sign (0->1 or 1->0). """
+        if changed_signs.count() == 0:
+            raise ValueError('changed_signs must flag at least one variable!')
+        if len(changed_signs) != self.nvars:
+            raise ValueError('changed_signs must have size ' + str(self.nvars) + '!')
+
+        # S_bullet: clauses of f with all sign-changed literals removed
+        sBullet = set()
+        for c in f.clauses:
+            signature = c.get_signature() & ~changed_signs
+            if signature.count() == 0:
+                # Existence criterion: no f' exists once a clause becomes empty
+                return set(), set(), set()
+            sBullet.add(Clause(signature))
+
+        # S' = S_bullet union each maximal independent clause of f
+        sC = self.powerset.get_maximal(self.powerset.get_independent(f.clauses))
+        sParents = { Function(self.nvars, sBullet | { c }) for c in sC }
+
+        return sParents, set(), set() # between signature changes only R1 parents are possible
+
+    def get_f_children_with_sign_changes(self, f: 'Function', changed_signs: bitarray) -> Tuple[Set['Function'], Set['Function'], Set['Function']]:
+        """ Returns the set of immediate children of f when the variables/regulators
+        flagged in changed_signs have switched sign (0->1 or 1->0). """
+        if changed_signs.count() == 0:
+            raise ValueError('changed_signs must flag at least one variable!')
+        if len(changed_signs) != self.nvars:
+            raise ValueError('changed_signs must have size ' + str(self.nvars) + '!')
+
+        # Existence criterion: f' exists only if some clause is made up exclusively of unchanged variables
+        invariants = { c for c in f.clauses if (c.get_signature() & changed_signs).count() == 0 }
+        if not invariants:
+            return set(), set(), set()
+
+        # One f' per clause s in invariants: f' = sRest union ext(s)
+        sChildren = set()
+        for s in invariants:
+            sRest = invariants - { s }
+            s_ext = s
+            for l in s.get_off_literals():
+                candidate = s_ext.clone_add(l)
+                if all(candidate.is_independent(c) for c in sRest):
+                    s_ext = candidate
+            if s_ext != s: # s unextended would just recreate f, not a child
+                sChildren.add(Function(self.nvars, sRest | { s_ext }))
+
+        return sChildren, set(), set() # between signature changes only R1 children are possible

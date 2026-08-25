@@ -70,10 +70,10 @@ class PowerSet:
         return s_diff
 
     def get_minimal(self, s_clauses: Set['Clause']) -> Set['Clause']:
-        return { s1 for s1 in s_clauses if not any( s1 != s2 and s2 <= s1 for s2 in s_clauses) }
+        return { s1 for s1 in s_clauses if not any(s2 < s1 for s2 in s_clauses) }
 
     def get_maximal(self, s_clauses: Set['Clause']) -> Set['Clause']:
-        return { s1 for s1 in s_clauses if not any( s1 != s2 and s2 >= s1 for s2 in s_clauses) }
+        return { s1 for s1 in s_clauses if not any(s2 > s1 for s2 in s_clauses) }
 
     def __str__(self) -> str:
         s = ""

@@ -77,7 +77,7 @@ class Clause:
     def __gt__(self, c: 'Clause') -> bool:
         if self.cardinality != c.cardinality:
             raise ValueError("Clauses must have the same cardinality!")
-        return self >= c and self != c
+        return (self != c) and (self >= c)
 
     def __le__(self, c: 'Clause') -> bool:
         if self.cardinality != c.cardinality:
@@ -87,12 +87,12 @@ class Clause:
     def __lt__(self, c: 'Clause') -> bool:
         if self.cardinality != c.cardinality:
             raise ValueError("Clauses must have the same cardinality!")
-        return self <= c and self != c
+        return (self != c) and (self <= c)
 
     def is_independent(self, c: 'Clause') -> bool:
         if self.cardinality != c.cardinality:
             raise ValueError("Clauses must have the same cardinality!")
-        return not self>=c and not self<=c
+        return (not self >= c) and (not self <= c)
 
     def get_subsets(self) -> Set['Clause']:
         return { self.clone_rm(l) for l in self.get_on_literals() }
