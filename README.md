@@ -7,7 +7,7 @@ Here, immediate neighbours, are the monotone Boolean functions that are immediat
 
 Monotone non-degenerate Boolean functions are represented as sets of clauses, where each clause is represented by the bitarray data structure, and each bit represents the presence/absence of a given variable/regulator. 
 
-This work corrects and extends our previous work available in [https://github.com/ptgm/functionhood/](https://github.com/ptgm/functionhood/), developed in Java, and described in [arxiv:1901.07623](https://arxiv.org/abs/1901.07623).
+This work is developed in Python in [https://github.com/ptgm/pyfunctionhood/](https://github.com/ptgm/pyfunctionhood/), correcting and extending our previous work developed in Java in [https://github.com/ptgm/functionhood/](https://github.com/ptgm/functionhood/) and described in [arxiv:1901.07623](https://arxiv.org/abs/1901.07623).
 
 Given a reference monotone Boolean function, this library can be used in three distinct manners:
 - in the command line passing the reference function as an argument
@@ -19,10 +19,11 @@ Given a reference monotone Boolean function, this library can be used in three d
 Usage - command line 
 --------------------
 ```
-Usage example: python main.py <type> <dimension> <function>
- <type>:      [p]arents or [c]hildren
- <dimension>: 4
- <function>:  "{{1,2,3},{1,3,4},{2,3,4}}"
+Usage example: python main.py <type> <dimension> <function> [<changed_signs>]
+ <type>:          [p]arents or [c]hildren
+ <dimension>:     4
+ <function>:      "{{1,2,3},{1,3,4},{2,3,4}}"
+ <changed_signs>: optional, e.g. "0100" (bit i=1 means variable i switched sign)
 ```
 
 **Parents**
@@ -47,6 +48,15 @@ R1 {{1,2,3},{1,3,4}}
 R1 {{1,2,3},{2,3,4}}
 ```
 
+**Sign changes**
+
+Commands accept an optional trailing `<changed_signs>` argument: a bitstring of the same length as `<dimension>`, where bit `i=1` means variable/regulator `i` switched sign (0->1 or 1->0) with respect to the reference topology. When provided (and not all zeros), parents/children are computed considering that change of signs instead of the default fixed-topology rules:
+```
+python main.py p 4 "{{1,2,3},{1,3,4},{2,3,4}}" 0100
+python main.py c 4 "{{1,2,3},{1,3,4},{2,3,4}}" 0100
+```
+When omitted (or all zeros), the behaviour is unchanged from above, i.e. fixed-topology.
+
 ---
 
 Usage - Graphical interface
@@ -57,6 +67,8 @@ There is also a graphical interface using Tkinter where the user can define the 
 ![Screenshot of main window](img/pyfunctionhood.png)
 
 The interface has a button to automatically write the Infimum function of the chosen dimension, and another for the Supremum function.
+
+A **Changed signs** text box is also available to optionally specify a bitstring of the same length as the dimension, where bit `i=1` means variable/regulator `i` switched sign. Leaving it empty (the default) keeps the fixed-topology behaviour.
 
 The user has two buttons to generate the immediate neighbouring functions: **Generate Parents** to generate the list of parent functions, and **Generate Children** to generate the list of children functions.
 
@@ -95,6 +107,15 @@ print(f'# parents from Rule1:{len(s1)} Rule2:{len(s2)} Rule3:{len(s3)}')
 print('\n'.join(['R1 ' + str(f) for f in s1]\
               + ['R2 ' + str(f) for f in s2]\
               + ['R3 ' + str(f) for f in s3]))
+```
+
+**Sign changes**
+
+To compute parents/children considering that some variables/regulators switched sign, use `hd.get_f_parents_with_sign_changes(f, changed_signs)` or `hd.get_f_children_with_sign_changes(f, changed_signs)`, where `changed_signs` is a `bitarray` of the same size as the dimension, with bit `i` set to `True` if variable `i` switched sign:
+```
+from bitarray import bitarray
+changed_signs = bitarray('0100')
+s1, s2, s3 = hd.get_f_parents_with_sign_changes(f, changed_signs)
 ```
 
 ---
