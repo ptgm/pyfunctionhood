@@ -142,8 +142,11 @@ class HasseDiagram:
                 return set(), set(), set()
             sBullet.add(Clause(signature))
 
+        # Keep only the smallest clauses, dropping any that are supersets of another
+        sBullet = self.powerset.get_minimal(sBullet)
+
         # S' = S_bullet union each maximal independent clause of f
-        sC = self.powerset.get_maximal(self.powerset.get_independent(f.clauses))
+        sC = self.powerset.get_maximal(self.powerset.get_independent(sBullet))
         sParents = { Function(self.nvars, sBullet | { c }) for c in sC }
 
         return sParents, set(), set() # between signature changes only R1 parents are possible
