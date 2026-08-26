@@ -1,0 +1,45 @@
+name: Publish Python Package
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger workflow on tags that start with "v" (e.g., v1.0.0)
+
+jobs:
+  build-and-publish:
+    name: Build and publish to PyPI
+    runs-on: ubuntu-latest
+
+    # Required for trusted publishing to PyPI
+    permissions:
+      id-token: write
+      contents: write # Elevated from 'read' to allow Release creation
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.x"
+
+    - name: Install build dependencies
+      run: python -m pip install --upgrade pip build
+
+    - name: Build sdist and wheel
+      run: python -m build
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        # This will include the .tar.gz and .whl files in the GitHub Release assets
+        files: dist/*
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
