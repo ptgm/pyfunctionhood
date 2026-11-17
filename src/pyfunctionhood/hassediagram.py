@@ -164,16 +164,17 @@ class HasseDiagram:
         if not invariants:
             return set(), set(), set()
 
-        # One f' per clause s in invariants: f' = sRest union ext(s)
+        # One f' per clause s in invariants: f' = (Inv \ {s}) U { s U {l} : l in ext(s) },
+        # where ext(s) is every literal l not in s such that s U {l} is independent of Inv \ {s}.
+        # (ext(s) always contains every changed variable, so f' is a cover.)
         sChildren = set()
         for s in invariants:
             sRest = invariants - { s }
-            s_ext = s
+            sExt = set()
             for l in s.get_off_literals():
-                candidate = s_ext.clone_add(l)
+                candidate = s.clone_add(l)
                 if all(candidate.is_independent(c) for c in sRest):
-                    s_ext = candidate
-            if s_ext != s: # s unextended would just recreate f, not a child
-                sChildren.add(Function(self.nvars, sRest | { s_ext }))
+                    sExt.add(candidate)
+            sChildren.add(Function(self.nvars, sRest | sExt))
 
         return sChildren, set(), set() # between signature changes only R1 children are possible
