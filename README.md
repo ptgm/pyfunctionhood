@@ -120,6 +120,22 @@ s1, s2, s3 = hd.get_f_parents_with_sign_changes(f, changed_signs)
 
 ---
 
+Testing
+-------
+
+The library includes a comprehensive pytest suite to validate correctness of the core algorithms:
+
+```bash
+pytest tests/ -v
+```
+
+This runs 22 tests covering:
+- **Sign changes computation** (test_check_sign_changes.py): Validates `get_f_parents/children_with_sign_changes()` by exhaustive checking for small dimensions and random sampling for larger ones
+- **Random walk consistency** (test_check_rules.py): Performs random walks on the Hasse diagram to verify parent-child relationships are consistent
+- **Rule categorization** (test_rule_categorization.py): Validates that parent and children are correctly partitioned into S1, S2, and S3 rules
+
+---
+
 License
 -------
 

@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0", "wheel", "setuptools_scm[toml]>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyfunctionhood"
-version = "0.2.1"
+dynamic = ["version"]
 description = "Local computation of immediate neighbours of a given monotone non-degenerate Boolean function"
 readme = "README.md"
 requires-python = ">=3.9"
