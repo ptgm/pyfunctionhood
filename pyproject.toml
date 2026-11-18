@@ -36,3 +36,7 @@ Repository = "https://github.com/ptgm/pyfunctionhood"
 
 [project.scripts]
 pyfunctionhood = "pyfunctionhood.main:main"
+
+[tool.setuptools_scm]
+tag_regex = "^v(?P<version>\\d+\\.\\d+\\.\\d+)$"
+local_scheme = "no-local-version"
