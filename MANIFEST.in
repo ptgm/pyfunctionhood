@@ -1,0 +1,3 @@
+# The experiments (scripts, raw data and figures of the paper) live in the GitHub
+# repository only; they are not shipped in the source distribution on PyPI.
+prune experiments

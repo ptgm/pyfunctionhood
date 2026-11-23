@@ -19,11 +19,11 @@ Given a reference monotone Boolean function, this library can be used in three d
 Usage - command line 
 --------------------
 ```
-Usage example: python main.py <type> <dimension> <function> [<changed_signs>]
+Usage example: python main.py <type> <dimension> <function> [<signature>]
  <type>:          [p]arents or [c]hildren
  <dimension>:     4
  <function>:      "{{1,2,3},{1,3,4},{2,3,4}}"
- <changed_signs>: optional, e.g. "0100" (bit i=1 means variable i switched sign)
+ <signature>:     optional target signature, e.g. "1011" (bit i: 1 = positive, 0 = negative variable i)
 ```
 
 **Parents**
@@ -50,12 +50,12 @@ R1 {{1,2,3},{2,3,4}}
 
 **Sign changes**
 
-Commands accept an optional trailing `<changed_signs>` argument: a bitstring of the same length as `<dimension>`, where bit `i=1` means variable/regulator `i` switched sign (0->1 or 1->0) with respect to the reference topology. When provided (and not all zeros), parents/children are computed considering that change of signs instead of the default fixed-topology rules:
+Commands accept an optional trailing `<signature>` argument: the target signature, a bitstring of the same length as `<dimension>`, where bit `i` is `1` if variable/regulator `i` is positive and `0` if it is negative. The function is given in the all-positive signature (all 1's). When a signature with some `0` is provided, the closest parents/children in that signature are computed instead of the default fixed-topology rules:
 ```
-python main.py p 4 "{{1,2,3},{1,3,4},{2,3,4}}" 0100
-python main.py c 4 "{{1,2,3},{1,3,4},{2,3,4}}" 0100
+python main.py p 4 "{{1,2,3},{1,3,4},{2,3,4}}" 1011
+python main.py c 4 "{{1,2,3},{1,3,4},{2,3,4}}" 1011
 ```
-When omitted (or all zeros), the behaviour is unchanged from above, i.e. fixed-topology.
+When omitted (or all 1's), the behaviour is unchanged from above, i.e. fixed-topology. In the output, `~i` denotes the negated variable `i`: for instance, `python main.py p 3 "{{1,2},{3}}" 101` yields `R1 {{1},{~2},{3}}`.
 
 ---
 
@@ -68,7 +68,7 @@ There is also a graphical interface using Tkinter where the user can define the 
 
 The interface has a button to automatically write the Infimum function of the chosen dimension, and another for the Supremum function.
 
-A **Changed signs** text box is also available to optionally specify a bitstring of the same length as the dimension, where bit `i=1` means variable/regulator `i` switched sign. Leaving it empty (the default) keeps the fixed-topology behaviour.
+A **Signature** text box is also available to optionally specify the target signature, a bitstring of the same length as the dimension, where bit `i` is `1` if variable/regulator `i` is positive and `0` if it is negative. It is set to all 1's (the default, i.e. the fixed-topology behaviour) and goes back to all 1's whenever the dimension changes. Hovering over it shows a short explanation.
 
 The user has two buttons to generate the immediate neighbouring functions: **Generate Parents** to generate the list of parent functions, and **Generate Children** to generate the list of children functions.
 
@@ -118,6 +118,8 @@ changed_signs = bitarray('0100')
 s1, s2, s3 = hd.get_f_parents_with_sign_changes(f, changed_signs)
 ```
 
+This is the complement of the `<signature>` used by the command line and the GUI: `changed_signs = ~bitarray(signature)`.
+
 ---
 
 Testing
@@ -139,7 +141,7 @@ This runs 22 tests covering:
 License
 -------
 
-This code is available under GPL-3.0.
+This code is available under the GNU Affero General Public License v3.0 (AGPL-3.0). See the `LICENSE` file.
 
 Cite
 ----
