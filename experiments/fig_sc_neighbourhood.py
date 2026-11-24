@@ -160,11 +160,10 @@ def plot(C, out):
     ylabels = ['Fraction of target signatures\nwith a closest relative',
                'Closest relatives per signature\n(when one exists)',
                'Closest relatives summed over\nall C(n,k) target signatures']
-    for ax, yl, t in zip(axes, ylabels, '(a) (b) (c)'.split()):
+    for ax, yl in zip(axes, ylabels):
         ax.set_xlabel('# of simultaneous sign changes (k)'); ax.set_ylabel(yl)
         ax.grid(True, which='both', linestyle=':')
         ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-        ax.set_title(t, loc='left')
     axes[0].legend(loc='upper right')
     axes[1].legend([Line2D([], [], color='k', marker='o'), Line2D([], [], color='k', ls='--', marker='^'),
                     Line2D([], [], color='k', marker='s', mfc='white', ls='')],
