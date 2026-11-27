@@ -140,7 +140,7 @@ def plot(A, out):
                     ax.plot(ks[:2], ys[:2], ':', color=color(n))
                 ax.plot(ks[0], ys[0], 's', mfc='white', color=color(n))
                 ks, ys = ks[1:], ys[1:]
-            ax.plot(ks, ys, marker='o', color=color(n), label='n=%d' % n)
+            ax.plot(ks, ys, marker='o', color=color(n), label='p=%d' % n)
         ax.set_yscale('log')
         ax.set_xlabel('# of simultaneous sign changes (k)')
         ax.set_ylabel('Avg time per call (s)')

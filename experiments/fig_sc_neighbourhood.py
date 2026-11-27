@@ -148,7 +148,7 @@ def plot(C, out):
         has0 = ks[0] == 0
         for ax, yp, yc in [(axes[0], ex_p, ex_c), (axes[1], cnd_p, cnd_c), (axes[2], tot_p, tot_c)]:
             first = 1 if has0 else 0
-            ax.plot(ks[first:], yp[first:], '-o', color=c, label='n=%d' % n)
+            ax.plot(ks[first:], yp[first:], '-o', color=c, label='p=%d' % n)
             ax.plot(ks[first:], yc[first:], '--^', color=c)
             if has0:
                 if len(ks) > 1 and ks[1] == 1:                    # dotted link k=0 -> k=1, as in fig_sc_cost
